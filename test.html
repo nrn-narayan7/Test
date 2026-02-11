@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valentine's Deployment ❤️</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #fce4ec;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Changed from fixed height */
+            text-align: center;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 500px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Image automatically gets smaller as buttons get bigger */
+        .photo-frame {
+            max-width: 80%;
+            max-height: 30vh; 
+            height: auto;
+            border-radius: 20px;
+            border: 6px solid white;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            margin: 15px 0;
+            flex-shrink: 1; /* This lets the photo shrink to make room */
+            object-fit: contain;
+        }
+
+        h1 {
+            color: #d81b60;
+            font-size: 1.5rem;
+            margin: 10px 0;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+            flex-wrap: wrap; /* Allows buttons to stack if they get too wide */
+            margin-top: 10px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            border: none;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            white-space: nowrap; /* Prevents text from breaking inside button */
+        }
+
+        #yes-btn {
+            background-color: #4CAF50;
+            color: white;
+            z-index: 100;
+            max-width: 90vw; /* Won't grow wider than the screen */
+        }
+
+        #no-btn {
+            background-color: #f44336;
+            color: white;
+            flex-shrink: 0; /* Ensures the No button doesn't get squashed */
+        }
+
+        #mail-screen { display: flex; flex-direction: column; align-items: center; }
+        #proposal-screen { display: none; }
+        #success-screen { display: none; }
+
+        .envelope { font-size: 80px; cursor: pointer; animation: float 3s infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+
+        .btn-open {
+            margin-top: 15px;
+            padding: 10px 25px;
+            background-color: #ff4081;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+        }
+
+        .heart { position: absolute; color: #e91e63; animation: fall linear forwards; pointer-events: none; }
+        @keyframes fall { to { transform: translateY(105vh) rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div id="mail-screen">
+        <h1>You have a priority message!</h1>
+        <div class="envelope" onclick="openMail()">💌</div>
+        <button class="btn-open" onclick="openMail()">View Message</button>
+    </div>
+
+    <div id="proposal-screen" class="container">
+        <h1 id="question-text">Will you be my Valentine?</h1>
+        <img src="b.png" alt="Engineering a Yes" class="photo-frame">
+        <div class="buttons">
+            <button id="yes-btn" class="btn" onclick="sayYes()">YES</button>
+            <button id="no-btn" class="btn" onclick="handleNo()">No</button>
+        </div>
+    </div>
+
+    <div id="success-screen" class="container">
+        <h1>Success! ❤️<br>I knew you'd say yes!</h1>
+        <img src="a.png" alt="Happy Results" class="photo-frame">
+    </div>
+
+     <script>
+        const noTexts = [
+            "Are you sure?", 
+            "Really sure?", 
+            "Pookie please... 🥺", 
+            "Think about it!", 
+            "Don't be like that!", 
+            "Error: Invalid selection.",
+            "I'll be so sad...",
+            "Give it a chance?", 
+            "Is it because I'm an engineer? ⚙️",
+            "Is it my haircut?",
+            "I'll buy you snacks! 🍫",
+            "You're breaking my heart 💔",
+            "Wrong button! Try again.",
+            "Look at my face! 🥺",
+            "Calculation Error: Try YES.",
+            "I'll tell your mom!",
+            "I'm literally crying...",
+            "Wait... really?",
+            "Just say YES! ❤️"
+        ];
+        
+        let noCount = 0;
+
+        function openMail() {
+            document.getElementById('mail-screen').style.display = 'none';
+            document.getElementById('proposal-screen').style.display = 'flex';
+        }
+
+        function handleNo() {
+            const noBtn = document.getElementById('no-btn');
+            const yesBtn = document.getElementById('yes-btn');
+
+            if (noCount < noTexts.length) {
+                noBtn.innerText = noTexts[noCount];
+            }
+            noCount++;
+
+            // Growth calculation with a CAP
+            let newSize = 16 + (noCount * 12); // Linear growth is safer than exponential
+            if (newSize > 80) newSize = 80; // Cap font size at 80px
+            
+            yesBtn.style.fontSize = newSize + "px";
+            yesBtn.style.padding = (newSize * 0.6) + "px " + (newSize * 1.0) + "px";
+
+            // If it gets really big, we make the question smaller to save space
+            if (noCount > 5) {
+                document.getElementById('question-text').style.fontSize = "1.2rem";
+            }
+        }
+
+        function sayYes() {
+            document.getElementById('proposal-screen').style.display = 'none';
+            document.getElementById('success-screen').style.display = 'flex';
+            createHearts();
+        }
+
+        function createHearts() {
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.classList.add('heart');
+                heart.innerHTML = '❤️';
+                heart.style.left = Math.random() * 100 + "vw";
+                heart.style.top = "-5vh";
+                heart.style.animationDuration = Math.random() * 2 + 3 + "s";
+                heart.style.fontSize = Math.random() * 20 + 20 + "px";
+                document.body.appendChild(heart);
+                setTimeout(() => heart.remove(), 5000);
+            }, 200);
+        }
+    </script>
+</body>
+</html>
