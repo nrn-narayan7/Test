@@ -14,14 +14,14 @@
             align-items: center;
             min-height: 100vh;
             text-align: center;
-            overflow: hidden; /* Critical to prevent scrolling when button moves */
-            touch-action: manipulation; /* Optimizes for mobile tapping */
+            overflow: hidden; 
+            touch-action: manipulation; 
         }
 
         .container {
             width: 95%;
             max-width: 500px;
-            padding: 20px;
+            padding: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -29,19 +29,28 @@
         }
 
         .photo-frame {
-            max-width: 80%;
-            max-height: 30vh; 
+            max-width: 85%;
+            max-height: 35vh; 
             height: auto;
             border-radius: 20px;
             border: 6px solid white;
             box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-            margin: 15px 0;
+            margin: 10px 0;
             object-fit: contain;
+            transition: all 0.5s ease;
+        }
+
+        /* Success Image is bigger */
+        #success-screen .photo-frame {
+            max-height: 50vh;
+            max-width: 95%;
+            transform: scale(1.1);
+            animation: pulse 2s infinite;
         }
 
         h1 {
             color: #d81b60;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             margin: 10px 0;
         }
 
@@ -51,18 +60,22 @@
             align-items: center;
             gap: 15px;
             width: 100%;
-            min-height: 150px; /* Space for the growing button */
+            min-height: 150px;
+            flex-wrap: wrap; /* Allows buttons to stack if they get too wide */
         }
 
         .btn {
             padding: 12px 20px;
             font-size: 16px;
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
             border: none;
             font-weight: bold;
-            transition: transform 0.1s ease-out;
-            white-space: nowrap;
+            transition: all 0.2s ease-out;
+            /* FIXED: Allows text to wrap into multiple lines on mobile */
+            white-space: normal; 
+            max-width: 80vw;
+            line-height: 1.2;
         }
 
         #yes-btn {
@@ -76,7 +89,6 @@
             color: white;
             position: relative;
             z-index: 5;
-            /* Faster transition for mobile "teleportation" */
             transition: left 0.1s ease-out, top 0.1s ease-out;
         }
 
@@ -89,16 +101,32 @@
 
         .btn-open {
             margin-top: 15px;
-            padding: 10px 25px;
+            padding: 12px 30px;
             background-color: #ff4081;
             color: white;
             border: none;
             border-radius: 50px;
             cursor: pointer;
+            font-weight: bold;
         }
 
-        .heart { position: absolute; color: #e91e63; animation: fall linear forwards; pointer-events: none; }
-        @keyframes fall { to { transform: translateY(105vh) rotate(360deg); } }
+        /* Celebration Animation */
+        .confetti {
+            position: absolute;
+            animation: fall linear forwards;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(110vh) rotate(720deg); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1.1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1.1); }
+        }
     </style>
 </head>
 <body>
@@ -122,7 +150,7 @@
     </div>
 
     <div id="success-screen" class="container">
-        <h1>Success! ❤️<br>I knew you'd say yes!</h1>
+        <h1 style="font-size: 2rem;">Success! ❤️<br>I knew you'd say yes!</h1>
         <img src="a.png" alt="Happy Results" class="photo-frame">
     </div>
 
@@ -131,9 +159,9 @@
             "Are you sure?", "Really sure?", "Pookie please... 🥺", 
             "Think about it!", "Don't be like that!", "Error: Invalid selection.",
             "I'll be so sad...", "Give it a chance?", "Is it my haircut?",
-            "I'll buy you snacks! 🍫", "You're breaking my heart 💔",
+            "You're breaking my heart 💔",
             "Wrong button! Try again.", "Look at my face! 🥺", "Calculation Error...",
-            "I'll tell your mom!", "I'm literally crying...", "Wait... really?",
+             "I'm literally crying...", "Wait... really?",
             "Just say YES! ❤️"
         ];
         
@@ -156,7 +184,7 @@
             let newSize = 16 + (noCount * 12);
             if (newSize > 80) newSize = 80;
             yesBtn.style.fontSize = newSize + "px";
-            yesBtn.style.padding = (newSize * 0.6) + "px " + (newSize * 1.0) + "px";
+            yesBtn.style.padding = (newSize * 0.5) + "px " + (newSize * 0.8) + "px";
 
             if (noCount > 5) {
                 document.getElementById('question-text').style.fontSize = "1.2rem";
@@ -164,11 +192,8 @@
         }
 
         function runAway() {
-            // Only runs away after all the text messages are exhausted
             if (noCount >= noTexts.length) {
                 const noBtn = document.getElementById('no-btn');
-                
-                // Calculate random positions
                 const padding = 20;
                 const maxX = window.innerWidth - noBtn.offsetWidth - padding;
                 const maxY = window.innerHeight - noBtn.offsetHeight - padding;
@@ -185,21 +210,24 @@
         function sayYes() {
             document.getElementById('proposal-screen').style.display = 'none';
             document.getElementById('success-screen').style.display = 'flex';
-            createHearts();
+            startCelebration();
         }
 
-        function createHearts() {
+        function startCelebration() {
+            const emojis = ['❤️', '💖', '✨', '🌸', '🌹', '🎉', '🥂', '💗'];
             setInterval(() => {
-                const heart = document.createElement('div');
-                heart.classList.add('heart');
-                heart.innerHTML = '❤️';
-                heart.style.left = Math.random() * 100 + "vw";
-                heart.style.top = "-5vh";
-                heart.style.animationDuration = Math.random() * 2 + 3 + "s";
-                heart.style.fontSize = Math.random() * 20 + 20 + "px";
-                document.body.appendChild(heart);
-                setTimeout(() => heart.remove(), 5000);
-            }, 200);
+                const conf = document.createElement('div');
+                conf.classList.add('confetti');
+                conf.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
+                conf.style.left = Math.random() * 100 + "vw";
+                conf.style.top = "-5vh";
+                conf.style.fontSize = (Math.random() * 20 + 20) + "px";
+                conf.style.animationDuration = (Math.random() * 3 + 2) + "s";
+                conf.style.opacity = Math.random();
+                document.body.appendChild(conf);
+                
+                setTimeout(() => conf.remove(), 5000);
+            }, 100);
         }
     </script>
 </body>
