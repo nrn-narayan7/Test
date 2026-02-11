@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Valentine's Deployment ❤️</title>
     <style>
         body {
@@ -14,7 +14,8 @@
             align-items: center;
             min-height: 100vh;
             text-align: center;
-            overflow: hidden; /* Prevent scrollbars when button runs away */
+            overflow: hidden; /* Critical to prevent scrolling when button moves */
+            touch-action: manipulation; /* Optimizes for mobile tapping */
         }
 
         .container {
@@ -35,7 +36,6 @@
             border: 6px solid white;
             box-shadow: 0 10px 20px rgba(0,0,0,0.1);
             margin: 15px 0;
-            flex-shrink: 1;
             object-fit: contain;
         }
 
@@ -51,8 +51,7 @@
             align-items: center;
             gap: 15px;
             width: 100%;
-            flex-wrap: wrap;
-            margin-top: 10px;
+            min-height: 150px; /* Space for the growing button */
         }
 
         .btn {
@@ -62,21 +61,23 @@
             cursor: pointer;
             border: none;
             font-weight: bold;
-            transition: all 0.2s ease;
+            transition: transform 0.1s ease-out;
             white-space: nowrap;
         }
 
         #yes-btn {
             background-color: #4CAF50;
             color: white;
-            z-index: 100;
+            z-index: 10;
         }
 
         #no-btn {
             background-color: #f44336;
             color: white;
-            position: relative; /* Necessary for initial layout */
-            transition: 0.1s; /* Fast transition for the "run away" effect */
+            position: relative;
+            z-index: 5;
+            /* Faster transition for mobile "teleportation" */
+            transition: left 0.1s ease-out, top 0.1s ease-out;
         }
 
         #mail-screen { display: flex; flex-direction: column; align-items: center; }
@@ -113,7 +114,10 @@
         <img src="b.png" alt="Engineering a Yes" class="photo-frame">
         <div class="buttons">
             <button id="yes-btn" class="btn" onclick="sayYes()">YES</button>
-            <button id="no-btn" class="btn" onmouseover="runAway()" onclick="handleNo()">No</button>
+            <button id="no-btn" class="btn" 
+                    onmouseover="runAway()" 
+                    ontouchstart="runAway()" 
+                    onclick="handleNo()">No</button>
         </div>
     </div>
 
@@ -126,9 +130,9 @@
         const noTexts = [
             "Are you sure?", "Really sure?", "Pookie please... 🥺", 
             "Think about it!", "Don't be like that!", "Error: Invalid selection.",
-            "I'll be so sad...", "Give it a chance?", "Is it because I'm an engineer? ⚙️",
-            "Is it my haircut?", "I'll buy you snacks! 🍫", "You're breaking my heart 💔",
-            "Wrong button! Try again.", "Look at my face! 🥺", "Calculation Error: Try YES.",
+            "I'll be so sad...", "Give it a chance?", "Is it my haircut?",
+            "I'll buy you snacks! 🍫", "You're breaking my heart 💔",
+            "Wrong button! Try again.", "Look at my face! 🥺", "Calculation Error...",
             "I'll tell your mom!", "I'm literally crying...", "Wait... really?",
             "Just say YES! ❤️"
         ];
@@ -149,7 +153,6 @@
                 noCount++;
             }
 
-            // Grow the Yes button
             let newSize = 16 + (noCount * 12);
             if (newSize > 80) newSize = 80;
             yesBtn.style.fontSize = newSize + "px";
@@ -160,21 +163,19 @@
             }
         }
 
-        // --- NEW LOGIC: The Run Away Function ---
         function runAway() {
-            // Only start running away after the last text message has been shown
+            // Only runs away after all the text messages are exhausted
             if (noCount >= noTexts.length) {
                 const noBtn = document.getElementById('no-btn');
                 
-                // Calculate random positions within the visible window
-                // Subtracting button width/height so it doesn't go off-screen
-                const maxX = window.innerWidth - noBtn.offsetWidth;
-                const maxY = window.innerHeight - noBtn.offsetHeight;
+                // Calculate random positions
+                const padding = 20;
+                const maxX = window.innerWidth - noBtn.offsetWidth - padding;
+                const maxY = window.innerHeight - noBtn.offsetHeight - padding;
 
-                const randomX = Math.floor(Math.random() * maxX);
-                const randomY = Math.floor(Math.random() * maxY);
+                const randomX = Math.max(padding, Math.floor(Math.random() * maxX));
+                const randomY = Math.max(padding, Math.floor(Math.random() * maxY));
 
-                // Switch to fixed positioning to move anywhere on the screen
                 noBtn.style.position = 'fixed';
                 noBtn.style.left = randomX + 'px';
                 noBtn.style.top = randomY + 'px';
